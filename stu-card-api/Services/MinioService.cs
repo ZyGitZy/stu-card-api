@@ -9,6 +9,8 @@ using stu_card_api.Extentions;
 using stu_card_api.interfaces;
 using stu_card_entity_store.Store;
 using System.IO;
+using System.Net;
+using System.Security.AccessControl;
 
 namespace stu_card_api.Services
 {
@@ -24,15 +26,22 @@ namespace stu_card_api.Services
             this.fileStore = entityStore;
         }
 
-        public async Task CreateBucketAsync(string bucketName)
+        public async Task CreateBucketAsync(string bucketName, bool isPublic)
         {
             try
             {
                 var exists = await this.minioClient.BucketExistsAsync(new BucketExistsArgs().WithBucket(bucketName)).ConfigureAwait(false);
                 if (!exists)
                 {
+                    if (isPublic)
+                    {
+                        var policy = $"{{\"Version\":\"2012-10-17\",\"Statement\":[{{\"Effect\":\"Allow\",\"Principal\":{{\"AWS\":[\"*\"]}},\"Action\":[\"s3:ListBucket\",\"s3:GetBucketLocation\"],\"Resource\":[\"arn:aws:s3:::{bucketName}\"]}},{{\"Effect\":\"Allow\",\"Principal\":{{\"AWS\":[\"*\"]}},\"Action\":[\"s3:GetObject\"],\"Resource\":[\"arn:aws:s3:::{bucketName}/*\"]}}]}}";
+                        var setPolicy = new SetPolicyArgs().WithBucket(bucketName).WithPolicy(policy);
+                        await this.minioClient.SetPolicyAsync(setPolicy);
+                    }
                     await this.minioClient.MakeBucketAsync(new MakeBucketArgs().WithBucket(bucketName));
                 }
+
             }
             catch (Exception)
             {
@@ -101,7 +110,7 @@ namespace stu_card_api.Services
 
         }
 
-        public async Task<PutObjectResponse> UploadFileUrl(string bucketName, string fileName, string contextType, string url, bool isPublic = true)
+        public async Task<(string url, string fileName, long fileSize)?> UploadFileUrl(string bucketName, string fileName, string contextType, string url, bool isPublic = true)
         {
             if (string.IsNullOrWhiteSpace(bucketName) || string.IsNullOrWhiteSpace(fileName))
             {
@@ -116,12 +125,47 @@ namespace stu_card_api.Services
             try
             {
                 await SetPolicyAsync(bucketName, isPublic);
-                var putAge = new PutObjectArgs()
-                    .WithBucket(bucketName)
-                     .WithObject("island.jpg")
-                     .WithContentType(contextType)
-                    .WithFileName(url);
-                return await this.minioClient.PutObjectAsync(putAge);
+                var putAge = new PutObjectArgs();
+                putAge.WithBucket(bucketName);
+                putAge.WithObject(fileName);
+                putAge.WithContentType(contextType);
+
+                if (url.StartsWith("http"))
+                {
+                    using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                    var response = await new HttpClient().SendAsync(request);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        await Console.Out.WriteLineAsync("图片读取失败");
+                        int count = 1;
+                        while (count <= 5 && !response.IsSuccessStatusCode)
+                        {
+                            await Console.Out.WriteLineAsync($"第{count}次尝试重新读取");
+                            response = await new HttpClient().SendAsync(request);
+                            await Task.Delay(5000);
+                            count++;
+                        }
+
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            await Console.Out.WriteLineAsync("图片读取失败，上传未成功");
+                            return null;
+                        }
+                    }
+                    using var result = await response.Content.ReadAsStreamAsync();
+                    long contentLength = result.Length;
+                    putAge.WithStreamData(result);
+                    putAge.WithObjectSize(contentLength);
+                    var ress = await this.minioClient.PutObjectAsync(putAge);
+                    response.Dispose();
+                    var uploadUrl = $"{(options.Value.WithSSL ? "https://" : "http://")}{options.Value.Endpoint}/{bucketName}/{ress.ObjectName}";
+
+                    return (uploadUrl, ress.ObjectName, ress.Size);
+                }
+                putAge.WithFileName(url);
+                var res = await this.minioClient.PutObjectAsync(putAge);
+                var _uploadUrl = $"{(options.Value.WithSSL ? "https://" : "http://")}{options.Value.Endpoint}/{bucketName}/{res.ObjectName}";
+                return (_uploadUrl, res.ObjectName, res.Size);
             }
             catch (Exception)
             {
@@ -132,7 +176,7 @@ namespace stu_card_api.Services
 
         }
 
-        public async Task<string> UploadFile(string bucketName, string fileName, MemoryStream memoryStream, string contextType, bool isPublic = true)
+        public async Task<string> UploadFile(string bucketName, string fileName, Stream memoryStream, string contextType, bool isPublic = true)
         {
 
             if (string.IsNullOrWhiteSpace(bucketName) || string.IsNullOrWhiteSpace(fileName))
@@ -166,14 +210,9 @@ namespace stu_card_api.Services
 
         private async Task SetPolicyAsync(string bucketName, bool isPublic)
         {
-            await CreateBucketAsync(bucketName).ConfigureAwait(false);
+            await CreateBucketAsync(bucketName, isPublic).ConfigureAwait(false);
 
-            if (isPublic)
-            {
-                var policy = $"{{\"Version\":\"2012-10-17\",\"Statement\":[{{\"Effect\":\"Allow\",\"Principal\":{{\"AWS\":[\"*\"]}},\"Action\":[\"s3:ListBucket\",\"s3:GetBucketLocation\"],\"Resource\":[\"arn:aws:s3:::{bucketName}\"]}},{{\"Effect\":\"Allow\",\"Principal\":{{\"AWS\":[\"*\"]}},\"Action\":[\"s3:GetObject\"],\"Resource\":[\"arn:aws:s3:::{bucketName}/*\"]}}]}}";
-                var setPolicy = new SetPolicyArgs().WithBucket(bucketName).WithPolicy(policy);
-                await this.minioClient.SetPolicyAsync(setPolicy);
-            }
+
         }
 
         private async Task<FileEntity> GetRandomFile()

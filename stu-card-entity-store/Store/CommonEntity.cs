@@ -14,5 +14,9 @@ namespace stu_card_entity_store.Store
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public bool IsDeleted { get; set; } = false;
+
+        public DateTime CreateTime { get; set; }
+
+        public DateTime UpdateTime { get; set; } = DateTime.Now;
     }
 }

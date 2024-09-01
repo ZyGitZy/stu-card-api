@@ -10,9 +10,11 @@ namespace stu_card_api.Controllers
     public class MinioController : ControllerBase
     {
         IMinioService minioService;
-        public MinioController(IMinioService minioService)
+        IDataAcquisitionService dataAcquisitionService;
+        public MinioController(IMinioService minioService, IDataAcquisitionService dataAcquisitionService)
         {
             this.minioService = minioService;
+            this.dataAcquisitionService = dataAcquisitionService;
         }
 
         /// <summary>

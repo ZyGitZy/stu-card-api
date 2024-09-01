@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using stu_card_api.StuDbContext;
 
@@ -10,9 +11,10 @@ using stu_card_api.StuDbContext;
 namespace stu_card_api.Migrations.StuCard
 {
     [DbContext(typeof(StuCardDbContext))]
-    partial class StuCardDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240831175645_StuCardV004")]
+    partial class StuCardV004
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

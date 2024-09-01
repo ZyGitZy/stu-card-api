@@ -21,12 +21,13 @@ namespace stu_card_api
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddDbContext<StuCardDbContext>();
+            AddScop(builder.Services);
             builder.Services.AddMinio(builder.Configuration);
             builder.Services.Configure<MinioOptions>(builder.Configuration.GetSection("MinioOptions"));
-
-            AddScop(builder.Services);
+            builder.Services.AddHostedService<TimeService>();
 
             var app = builder.Build();
+
 
             // Configure the HTTP request pipeline.
             app.UseSwagger();
@@ -35,7 +36,6 @@ namespace stu_card_api
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 
@@ -48,6 +48,8 @@ namespace stu_card_api
             services.AddScoped(typeof(IEntityStore<>), typeof(EntityStore<>));
             services.AddScoped<IMinioService, MinioService>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IDataAcquisitionService, DataAcquisitionService>();
+
         }
     }
 }

@@ -6,9 +6,9 @@ namespace stu_card_api.interfaces
     {
         Task<string> GetDownLoadUrlAsync(string buckName, string objectName);
 
-        Task<string> UploadFile(string bucketName, string fileName, MemoryStream memoryStream, string contextType, bool isPublic = true);
+        Task<string> UploadFile(string bucketName, string fileName, Stream memoryStream, string contextType, bool isPublic = true);
 
-        Task<PutObjectResponse> UploadFileUrl(string bucketName,string fileName,string contextType, string url, bool isPublic = true);
+        Task<(string url,string fileName,long fileSize)?> UploadFileUrl(string bucketName,string fileName,string contextType, string url, bool isPublic = true);
 
         Task<(byte[] stream, string fileName)> GetRandomImage();
 
