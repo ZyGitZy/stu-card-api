@@ -25,14 +25,20 @@ namespace stu_card_api
             builder.Services.AddMinio(builder.Configuration);
             builder.Services.Configure<MinioOptions>(builder.Configuration.GetSection("MinioOptions"));
             builder.Services.AddHostedService<TimeService>();
-
+            builder.Services.AddCors();
             var app = builder.Build();
 
 
             // Configure the HTTP request pipeline.
             app.UseSwagger();
             app.UseSwaggerUI();
-
+            app.UseCors(cors =>
+            {
+                cors.AllowAnyHeader();
+                cors.AllowAnyMethod();  
+                cors.WithMethods("*");
+                cors.AllowCredentials();
+            });
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
