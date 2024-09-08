@@ -10,8 +10,8 @@ namespace stu_card_api.interfaces
 
         Task<(string url,string fileName,long fileSize)?> UploadFileUrl(string bucketName,string fileName,string contextType, string url, bool isPublic = true);
 
-        Task<(byte[] stream, string fileName)> GetRandomImage();
+        Task<(byte[] stream, string fileName)> GetRandomImage(string buckName);
 
-        Task<string> GetRandomImageUrl();
+        Task<string> GetRandomImageUrl(string buckName);
     }
 }

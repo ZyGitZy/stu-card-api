@@ -58,9 +58,9 @@ namespace stu_card_api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("random/image")]
-        public async Task<IActionResult> GetRandomImage()
+        public async Task<IActionResult> GetRandomImage(string buckName)
         {
-            var (stream, fileName) = await this.minioService.GetRandomImage();
+            var (stream, fileName) = await this.minioService.GetRandomImage(buckName);
             string contentType = "application/octet-stream";
             return File(stream, contentType, fileName);
         }
@@ -70,9 +70,9 @@ namespace stu_card_api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("random/image/url")]
-        public async Task<IActionResult> GetRandomImageUrl()
+        public async Task<IActionResult> GetRandomImageUrl(string buckName)
         {
-            var url = await this.minioService.GetRandomImageUrl();
+            var url = await this.minioService.GetRandomImageUrl(buckName);
             return this.Ok(url);
         }
     }

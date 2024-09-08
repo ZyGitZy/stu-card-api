@@ -51,16 +51,16 @@ namespace stu_card_api.Services
 
         }
 
-        public async Task<string> GetRandomImageUrl()
+        public async Task<string> GetRandomImageUrl(string buckName)
         {
-            var fileEntity = await GetRandomFile();
+            var fileEntity = await GetRandomFile(buckName);
 
             return await this.GetDownLoadUrlAsync(fileEntity.BuckName, fileEntity.FileName);
         }
 
-        public async Task<(byte[] stream, string fileName)> GetRandomImage()
+        public async Task<(byte[] stream, string fileName)> GetRandomImage(string buckName)
         {
-            var fileEntity = await GetRandomFile();
+            var fileEntity = await GetRandomFile(buckName);
 
             using MemoryStream memoryStream = new();
             var getObjectArgs = new GetObjectArgs()
@@ -215,9 +215,9 @@ namespace stu_card_api.Services
 
         }
 
-        private async Task<FileEntity> GetRandomFile()
+        private async Task<FileEntity> GetRandomFile(string buckName)
         {
-            var count = await this.fileStore.CountAsync();
+            var count = await this.fileStore.CountAsync(c => c.BuckName == buckName);
             if (count == 0)
             {
                 throw new Exception("没有任何图片");
