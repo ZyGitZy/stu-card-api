@@ -199,7 +199,7 @@ namespace stu_card_api.Services
                     .WithObjectSize(memoryStream.Length)
                     .WithContentType(contextType);
                 await this.minioClient.PutObjectAsync(putAge);
-                return $"{(options.Value.WithSSL ? "http://" : "https://")}{options.Value.Endpoint}/{bucketName}/{fileName}";
+                return $"{(options.Value.WithSSL ? "https://" : "http://")}{options.Value.Endpoint}/{bucketName}/{fileName}";
             }
             catch (Exception)
             {
