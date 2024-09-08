@@ -225,7 +225,7 @@ namespace stu_card_api.Services
 
             var randomIndex = new Random().Next(0, count);
 
-            var fileEntity = await this.fileStore.Query().Skip(randomIndex).Take(1).FirstOrDefaultAsync() ?? throw new Exception("没有任何图片");
+            var fileEntity = await this.fileStore.Query().Where(w => w.BuckName == buckName).Skip(randomIndex).Take(1).FirstOrDefaultAsync() ?? throw new Exception("没有任何图片");
 
             return fileEntity;
         }
