@@ -75,6 +75,7 @@ namespace stu_card_api.Services
                 BuckName = buckName,
                 FileName = formFile.FileName,
                 FileSize = formFile.Length,
+                CreateTime = DateTime.Now,
                 FileType = formFile.ContentType,
             };
 
