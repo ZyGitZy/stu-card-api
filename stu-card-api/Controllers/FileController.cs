@@ -15,10 +15,10 @@ namespace stu_card_api.Controllers
         }
 
         [HttpPost]
-        public async Task<int> PostAsync(IFormFile formFile) => await this.fileService.PostAsync(formFile);
+        public async Task<int> PostAsync([FromQuery] string buckName, IFormFile formFile) => await this.fileService.PostAsync(formFile, buckName);
 
-        [HttpPost("url")]
-        public async Task<int> PostUrlAsync(string formFile) => await this.fileService.PostUrlAsync(formFile);
+        [HttpGet("url")]
+        public async Task<int> PostUrlAsync(string buckName, string formFile) => await this.fileService.PostUrlAsync(formFile, buckName);
 
     }
 }
