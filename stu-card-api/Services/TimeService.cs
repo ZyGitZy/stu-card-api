@@ -39,9 +39,9 @@ namespace stu_card_api.Services
                 var result = await scopedProcessingService.PersionCollection();
                 if (count > 10)
                 {
-                    timer.Change(Timeout.Infinite, 0);
-                    await Task.Delay(1000 * 60 * 60 * 60);
-                    timer.Change(0, 1000 * 60);
+                    //timer.Change(Timeout.Infinite, 0);
+                    //await Task.Delay(1000 * 60 * 60 * 60);
+                    //timer.Change(0, 1000 * 60);
                 }
                 count++;
                 await Console.Out.WriteLineAsync("11111111111111111111111111111111");

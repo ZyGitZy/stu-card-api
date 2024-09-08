@@ -61,7 +61,7 @@ namespace stu_card_api.Services
 
         public async Task<bool> PersionCollection()
         {
-            var str = "{\r\n    \"data\": [\r\n        \"a real handsome man with random hair, blue background ID photo\",\r\n        \"\",\r\n        1407930266,\r\n        true,\r\n        1024,\r\n        1024,\r\n        5,\r\n        28\r\n    ],\r\n    \"event_data\": null,\r\n    \"fn_index\": 1,\r\n    \"trigger_id\": 5,\r\n    \"session_hash\": \"84e30s7gnsc\"\r\n}";
+            var str = "{\r\n    \"data\": [\r\n        \"a real handsome man with random hair, blue background ID photo\",\r\n        \"\",\r\n        1407930266,\r\n        true,\r\n        1024,\r\n        1024,\r\n        5,\r\n        28\r\n    ],\r\n    \"event_data\": null,\r\n    \"fn_index\": 1,\r\n    \"trigger_id\": 5,\r\n    \"session_hash\": \"m3ytfj9fth\"\r\n}";
             var request = new HttpRequestMessage(HttpMethod.Post, "https://stabilityai-stable-diffusion-3-medium.hf.space/queue/join?__theme=light")
             {
                 Content = new StringContent(str)
@@ -90,7 +90,7 @@ namespace stu_card_api.Services
                 return false;
             }
             HttpClient http2 = new();
-            var response = await http2.SendAsync(new HttpRequestMessage(HttpMethod.Get, "https://stabilityai-stable-diffusion-3-medium.hf.space/queue/data?session_hash=84e30s7gnsc"), HttpCompletionOption.ResponseHeadersRead);
+            var response = await http2.SendAsync(new HttpRequestMessage(HttpMethod.Get, "https://stabilityai-stable-diffusion-3-medium.hf.space/queue/data?session_hash=m3ytfj9fth"), HttpCompletionOption.ResponseHeadersRead);
             var code = response.EnsureSuccessStatusCode();
             await Console.Out.WriteLineAsync($"生成code：{code}");
             if (!code.IsSuccessStatusCode)

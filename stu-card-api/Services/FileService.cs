@@ -78,7 +78,7 @@ namespace stu_card_api.Services
                 FileType = formFile.ContentType,
             };
 
-            MemoryStream stream = new MemoryStream();
+            MemoryStream stream = new();
             await formFile.CopyToAsync(stream);
             stream.Position = 0;
             var fileUrl = await this.minioService.UploadFile(buckName, formFile.FileName, stream, formFile.ContentType, true);
