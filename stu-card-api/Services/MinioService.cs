@@ -33,13 +33,13 @@ namespace stu_card_api.Services
                 var exists = await this.minioClient.BucketExistsAsync(new BucketExistsArgs().WithBucket(bucketName)).ConfigureAwait(false);
                 if (!exists)
                 {
+                    await this.minioClient.MakeBucketAsync(new MakeBucketArgs().WithBucket(bucketName));
                     if (isPublic)
                     {
                         var policy = $"{{\"Version\":\"2012-10-17\",\"Statement\":[{{\"Effect\":\"Allow\",\"Principal\":{{\"AWS\":[\"*\"]}},\"Action\":[\"s3:ListBucket\",\"s3:GetBucketLocation\"],\"Resource\":[\"arn:aws:s3:::{bucketName}\"]}},{{\"Effect\":\"Allow\",\"Principal\":{{\"AWS\":[\"*\"]}},\"Action\":[\"s3:GetObject\"],\"Resource\":[\"arn:aws:s3:::{bucketName}/*\"]}}]}}";
                         var setPolicy = new SetPolicyArgs().WithBucket(bucketName).WithPolicy(policy);
                         await this.minioClient.SetPolicyAsync(setPolicy);
                     }
-                    await this.minioClient.MakeBucketAsync(new MakeBucketArgs().WithBucket(bucketName));
                 }
 
             }
