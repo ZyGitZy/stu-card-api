@@ -75,5 +75,12 @@ namespace stu_card_api.Controllers
             var url = await this.minioService.GetRandomImageUrl(buckName);
             return this.Ok(url);
         }
+        
+        [HttpGet("async/lbxx/img")]
+        public async Task<IActionResult> AsyncLBXXImg()
+        {
+            var result = await this.minioService.AsyncLBXXImg();
+            return this.Ok(result);
+        }
     }
 }

@@ -25,4 +25,9 @@
     <ProjectReference Include="..\stu-card-entity-store\stu-card-entity-store.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Images\LBXX\" />
+    <Folder Include="Migrations\StuCard\" />
+  </ItemGroup>
+
 </Project>

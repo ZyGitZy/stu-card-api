@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -13,6 +14,31 @@ namespace stu_card_api.Migrations.StuCard
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "StuCard.File",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    FileUrl = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    FileName = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    FileType = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    FileSize = table.Column<long>(type: "bigint", nullable: false),
+                    BuckName = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StuCard.File", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "StuCard.Template",
                 columns: table => new
                 {
@@ -21,8 +47,10 @@ namespace stu_card_api.Migrations.StuCard
                     ZhSchoolName = table.Column<string>(type: "nvarchar(200)", nullable: false),
                     EnSchoolName = table.Column<string>(type: "nvarchar(200)", nullable: false),
                     SchoolAbbreviation = table.Column<string>(type: "nvarchar(100)", nullable: false),
-                    FileUrl = table.Column<string>(type: "nvarchar(2000)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                    FileId = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -37,7 +65,10 @@ namespace stu_card_api.Migrations.StuCard
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Version = table.Column<string>(type: "nvarchar(200)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                    TemplateId = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -111,7 +142,9 @@ namespace stu_card_api.Migrations.StuCard
                     Linethrough = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     TextBackgroundColor = table.Column<string>(type: "nvarchar(200)", nullable: false),
                     Direction = table.Column<string>(type: "nvarchar(200)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -133,7 +166,9 @@ namespace stu_card_api.Migrations.StuCard
                     AffectStroke = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     NonScaling = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     Type = table.Column<string>(type: "nvarchar(200)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    CreateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -144,6 +179,9 @@ namespace stu_card_api.Migrations.StuCard
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "StuCard.File");
+
             migrationBuilder.DropTable(
                 name: "StuCard.Template");
 

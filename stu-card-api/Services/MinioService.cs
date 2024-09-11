@@ -19,7 +19,9 @@ namespace stu_card_api.Services
         private readonly IMinioClient minioClient;
         private readonly IOptions<MinioOptions> options;
         private readonly IEntityStore<FileEntity> fileStore;
-        public MinioService(IMinioClient minioClient, IOptions<MinioOptions> options, IEntityStore<FileEntity> entityStore)
+
+        public MinioService(IMinioClient minioClient, IOptions<MinioOptions> options,
+            IEntityStore<FileEntity> entityStore)
         {
             this.minioClient = minioClient;
             this.options = options;
@@ -30,25 +32,24 @@ namespace stu_card_api.Services
         {
             try
             {
-                var exists = await this.minioClient.BucketExistsAsync(new BucketExistsArgs().WithBucket(bucketName)).ConfigureAwait(false);
+                var exists = await this.minioClient.BucketExistsAsync(new BucketExistsArgs().WithBucket(bucketName))
+                    .ConfigureAwait(false);
                 if (!exists)
                 {
                     await this.minioClient.MakeBucketAsync(new MakeBucketArgs().WithBucket(bucketName));
                     if (isPublic)
                     {
-                        var policy = $"{{\"Version\":\"2012-10-17\",\"Statement\":[{{\"Effect\":\"Allow\",\"Principal\":{{\"AWS\":[\"*\"]}},\"Action\":[\"s3:ListBucket\",\"s3:GetBucketLocation\"],\"Resource\":[\"arn:aws:s3:::{bucketName}\"]}},{{\"Effect\":\"Allow\",\"Principal\":{{\"AWS\":[\"*\"]}},\"Action\":[\"s3:GetObject\"],\"Resource\":[\"arn:aws:s3:::{bucketName}/*\"]}}]}}";
+                        var policy =
+                            $"{{\"Version\":\"2012-10-17\",\"Statement\":[{{\"Effect\":\"Allow\",\"Principal\":{{\"AWS\":[\"*\"]}},\"Action\":[\"s3:ListBucket\",\"s3:GetBucketLocation\"],\"Resource\":[\"arn:aws:s3:::{bucketName}\"]}},{{\"Effect\":\"Allow\",\"Principal\":{{\"AWS\":[\"*\"]}},\"Action\":[\"s3:GetObject\"],\"Resource\":[\"arn:aws:s3:::{bucketName}/*\"]}}]}}";
                         var setPolicy = new SetPolicyArgs().WithBucket(bucketName).WithPolicy(policy);
                         await this.minioClient.SetPolicyAsync(setPolicy);
                     }
                 }
-
             }
             catch (Exception)
             {
-
                 throw;
             }
-
         }
 
         public async Task<string> GetRandomImageUrl(string buckName)
@@ -79,18 +80,19 @@ namespace stu_card_api.Services
             {
                 throw new Exception("buckName or objectName is null");
             }
+
             try
             {
                 await this.minioClient.StatObjectAsync(new StatObjectArgs().WithBucket(buckName)
                     .WithObject(objectName));
 
-                string url = await this.minioClient.PresignedGetObjectAsync(new PresignedGetObjectArgs().WithBucket(buckName).WithObject(objectName).WithExpiry(60 * 60 * 24));
+                string url = await this.minioClient.PresignedGetObjectAsync(new PresignedGetObjectArgs()
+                    .WithBucket(buckName).WithObject(objectName).WithExpiry(60 * 60 * 24));
 
                 return url;
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
@@ -99,7 +101,8 @@ namespace stu_card_api.Services
         {
             try
             {
-                var policy = $"{{\"Version\":\"2012-10-17\",\"Statement\":[{{\"Effect\":\"Allow\",\"Principal\":{{\"AWS\":[\"*\"]}},\"Action\":[\"s3:ListBucket\",\"s3:GetBucketLocation\"],\"Resource\":[\"arn:aws:s3:::{bucketName}\"]}},{{\"Effect\":\"Allow\",\"Principal\":{{\"AWS\":[\"*\"]}},\"Action\":[\"s3:GetObject\"],\"Resource\":[\"arn:aws:s3:::{bucketName}/*\"]}}]}}";
+                var policy =
+                    $"{{\"Version\":\"2012-10-17\",\"Statement\":[{{\"Effect\":\"Allow\",\"Principal\":{{\"AWS\":[\"*\"]}},\"Action\":[\"s3:ListBucket\",\"s3:GetBucketLocation\"],\"Resource\":[\"arn:aws:s3:::{bucketName}\"]}},{{\"Effect\":\"Allow\",\"Principal\":{{\"AWS\":[\"*\"]}},\"Action\":[\"s3:GetObject\"],\"Resource\":[\"arn:aws:s3:::{bucketName}/*\"]}}]}}";
                 var setPolicy = new SetPolicyArgs().WithBucket(policy).WithPolicy(policy);
                 await this.minioClient.SetPolicyAsync(setPolicy);
             }
@@ -107,10 +110,10 @@ namespace stu_card_api.Services
             {
                 Console.WriteLine("Error occurred: " + e);
             }
-
         }
 
-        public async Task<(string url, string fileName, long fileSize)?> UploadFileUrl(string bucketName, string fileName, string contextType, string url, bool isPublic = true)
+        public async Task<(string url, string fileName, long fileSize)?> UploadFileUrl(string bucketName,
+            string fileName, string contextType, string url, bool isPublic = true)
         {
             if (string.IsNullOrWhiteSpace(bucketName) || string.IsNullOrWhiteSpace(fileName))
             {
@@ -152,33 +155,34 @@ namespace stu_card_api.Services
                             return null;
                         }
                     }
+
                     using var result = await response.Content.ReadAsStreamAsync();
                     long contentLength = result.Length;
                     putAge.WithStreamData(result);
                     putAge.WithObjectSize(contentLength);
                     var ress = await this.minioClient.PutObjectAsync(putAge);
                     response.Dispose();
-                    var uploadUrl = $"{(options.Value.WithSSL ? "https://" : "http://")}{options.Value.Endpoint}/{bucketName}/{ress.ObjectName}";
+                    var uploadUrl =
+                        $"{(options.Value.WithSSL ? "https://" : "http://")}{options.Value.Endpoint}/{bucketName}/{ress.ObjectName}";
 
                     return (uploadUrl, ress.ObjectName, ress.Size);
                 }
+
                 putAge.WithFileName(url);
                 var res = await this.minioClient.PutObjectAsync(putAge);
-                var _uploadUrl = $"{(options.Value.WithSSL ? "https://" : "http://")}{options.Value.Endpoint}/{bucketName}/{res.ObjectName}";
+                var _uploadUrl =
+                    $"{(options.Value.WithSSL ? "https://" : "http://")}{options.Value.Endpoint}/{bucketName}/{res.ObjectName}";
                 return (_uploadUrl, res.ObjectName, res.Size);
             }
             catch (Exception)
             {
-
                 throw;
             }
-
-
         }
 
-        public async Task<string> UploadFile(string bucketName, string fileName, Stream memoryStream, string contextType, bool isPublic = true)
+        public async Task<string> UploadFile(string bucketName, string fileName, Stream memoryStream,
+            string contextType, bool isPublic = true)
         {
-
             if (string.IsNullOrWhiteSpace(bucketName) || string.IsNullOrWhiteSpace(fileName))
             {
                 throw new Exception("buckName or objectName is null");
@@ -199,20 +203,60 @@ namespace stu_card_api.Services
                     .WithObjectSize(memoryStream.Length)
                     .WithContentType(contextType);
                 await this.minioClient.PutObjectAsync(putAge);
-                return $"{(options.Value.WithSSL ? "https://" : "http://")}{options.Value.Endpoint}/{bucketName}/{fileName}";
+                return
+                    $"{(options.Value.WithSSL ? "https://" : "http://")}{options.Value.Endpoint}/{bucketName}/{fileName}";
             }
             catch (Exception)
             {
                 throw;
             }
+        }
 
+        public async Task<string> AsyncLBXXImg()
+        {
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Images", "LBXX");
+            var isExists = Directory.Exists(filePath);
+            if (!isExists)
+            {
+                throw new Exception("文件夹不存在");
+            }
+            var imageFiles = Directory.GetFiles(filePath, "*.*", SearchOption.AllDirectories).ToArray();
+            foreach (var url in imageFiles)
+            {
+                using (FileStream fs = new FileStream(url, FileMode.Open, FileAccess.Read))
+                {
+                    var fileName = Path.GetFileName(url);
+                    var bucketName = "lbxx";
+                    var contextType = GetContentType(fileName);
+                    var result = await UploadFile(bucketName, fileName, fs, contextType, true);
+                    if (string.IsNullOrWhiteSpace(result))
+                    {
+                        throw new Exception("上传失败");
+                    }
+                }
+            }
+
+            return "上传完成";
+        }
+
+        private string GetContentType(string fileName)
+        {
+            var extension = Path.GetExtension(fileName);
+            return extension switch
+            {
+                ".jpeg" => "image/jpeg",
+                ".jpg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".webp" => "image/webp",
+                ".csv" => "text/csv",
+                _ => "application/octet-stream"
+            };
         }
 
         private async Task SetPolicyAsync(string bucketName, bool isPublic)
         {
             await CreateBucketAsync(bucketName, isPublic).ConfigureAwait(false);
-
-
         }
 
         private async Task<FileEntity> GetRandomFile(string buckName)
@@ -225,7 +269,9 @@ namespace stu_card_api.Services
 
             var randomIndex = new Random().Next(0, count);
 
-            var fileEntity = await this.fileStore.Query().Where(w => w.BuckName == buckName).Skip(randomIndex).Take(1).FirstOrDefaultAsync() ?? throw new Exception("没有任何图片");
+            var fileEntity =
+                await this.fileStore.Query().Where(w => w.BuckName == buckName).Skip(randomIndex).Take(1)
+                    .FirstOrDefaultAsync() ?? throw new Exception("没有任何图片");
 
             return fileEntity;
         }
