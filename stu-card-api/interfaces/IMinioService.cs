@@ -13,5 +13,7 @@ namespace stu_card_api.interfaces
         Task<(byte[] stream, string fileName)> GetRandomImage(string buckName);
 
         Task<string> GetRandomImageUrl(string buckName);
+
+        Task<string> AsyncLBXXImg();
     }
 }

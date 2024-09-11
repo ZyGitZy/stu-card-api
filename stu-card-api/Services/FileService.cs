@@ -21,7 +21,7 @@ namespace stu_card_api.Services
         {".webp","image/webp" },
         {".csv", "text/csv"}
     };
-        public FileService(IMinioService minioService, IEntityStore<FileEntity> entityStore)
+        public  FileService(IMinioService minioService, IEntityStore<FileEntity> entityStore)
         {
             this.minioService = minioService;
             this.entityStore = entityStore;
