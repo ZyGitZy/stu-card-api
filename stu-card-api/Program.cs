@@ -24,7 +24,7 @@ namespace stu_card_api
             AddScop(builder.Services);
             builder.Services.AddMinio(builder.Configuration);
             builder.Services.Configure<MinioOptions>(builder.Configuration.GetSection("MinioOptions"));
-            // builder.Services.AddHostedService<TimeService>();
+            builder.Services.AddHostedService<TimeService>();
             builder.Services.AddCors();
             var app = builder.Build();
 

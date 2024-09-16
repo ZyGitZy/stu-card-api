@@ -12,15 +12,6 @@ namespace stu_card_api.Services
         IEntityStore<FileEntity> entityStore;
         //readonly string buckName = "headportrait";
 
-        static Dictionary<string, string> mimeTypes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-    {
-        {".png", "image/png"},
-        {".jpg", "image/jpeg"},
-        {".jpeg", "image/jpeg"},
-        {".gif", "image/gif"},
-        {".webp","image/webp" },
-        {".csv", "text/csv"}
-    };
         public  FileService(IMinioService minioService, IEntityStore<FileEntity> entityStore)
         {
             this.minioService = minioService;
@@ -49,15 +40,16 @@ namespace stu_card_api.Services
         public async Task<int> PostUrlAsync(string url, string buckName = "headportrait")
         {
             string extension = Path.GetExtension(new Uri(url).AbsolutePath);
-            string contextType = mimeTypes.ContainsKey(extension) ? mimeTypes[extension] : "application/octet-stream";
+            var mimeTypes = Units.Units.GetFilePrefixByValue(extension);
+ 
             extension = DateTimeOffset.Now.ToUnixTimeMilliseconds() + extension;
-            var result = await this.minioService.UploadFileUrl(buckName, extension, contextType, url) ?? throw new Exception("文件上传失败");
+            var result = await this.minioService.UploadFileUrl(buckName, extension, mimeTypes, url) ?? throw new Exception("文件上传失败");
             var entity = new FileEntity
             {
                 BuckName = buckName,
                 FileName = result.fileName,
                 FileSize = result.fileSize,
-                FileType = contextType,
+                FileType = mimeTypes,
                 CreateTime = DateTime.Now,
                 UpdateTime = DateTime.Now,
                 FileUrl = result.url

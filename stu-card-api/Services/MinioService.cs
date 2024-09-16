@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Minio;
 using Minio.DataModel.Args;
@@ -19,7 +20,6 @@ namespace stu_card_api.Services
         private readonly IMinioClient minioClient;
         private readonly IOptions<MinioOptions> options;
         private readonly IEntityStore<FileEntity> fileStore;
-
         public MinioService(IMinioClient minioClient, IOptions<MinioOptions> options,
             IEntityStore<FileEntity> entityStore)
         {
@@ -210,6 +210,40 @@ namespace stu_card_api.Services
             {
                 throw;
             }
+        }
+
+        public async Task AsyncData()
+        {
+            var allBack = await this.minioClient.ListBucketsAsync();
+
+            if (allBack == null)
+            {
+                throw new Exception("未获取到桶");
+            }
+
+            foreach (var back in allBack.Buckets)
+            {
+                var allObjects = this.minioClient.ListObjectsEnumAsync(new ListObjectsArgs().WithBucket(back.Name));
+                await foreach (var item in allObjects)
+                {
+                    string contextType = Units.Units.GetFilePrefixByValue(item.Key);
+                    var files = new FileEntity
+                    {
+                        BuckName = back.Name,
+                        CreateTime = DateTime.Now,
+                        FileName = item.Key,
+                        FileSize = (long)item.Size,
+                        UpdateTime = DateTime.Now,
+                        IsDeleted = false,
+                        FileType = contextType,
+                        FileUrl = $"{(options.Value.WithSSL ? "https://" : "http://")}{options.Value.Endpoint}/{back.Name}/{item.Key}"
+                    };
+
+                    this.fileStore.Create(files);
+                }
+            }
+
+            await this.fileStore.SaveChangeAsync();
         }
 
         public async Task<string> AsyncLBXXImg()
